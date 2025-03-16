@@ -1,7 +1,7 @@
 FROM node:18-alpine
 
 # Set working directory
-WORKDIR /router-sms-sender
+WORKDIR SMSGTLast/router-sms-sender
 
 # Copy package files
 COPY package.json ./
@@ -16,4 +16,4 @@ COPY . .
 RUN chmod +x run.sh
 
 # Command to run when container starts
-CMD [ "/router-sms-sender/run.sh" ]
+CMD [ "SMSGTLast/router-sms-sender/run.sh" ]
