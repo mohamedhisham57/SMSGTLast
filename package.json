@@ -1,0 +1,15 @@
+{
+  "name": "router-sms-sender",
+  "version": "1.0.0",
+  "description": "Send SMS messages through your router from Home Assistant",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "minimist": "^1.2.8",
+    "node-fetch": "^3.3.2"
+  }
+}
