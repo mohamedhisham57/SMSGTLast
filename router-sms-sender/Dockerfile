@@ -18,7 +18,7 @@ RUN mkdir -p /data
 
 # If you have a default config, copy it to the expected location
 # (Replace this with your actual default config if available)
-RUN echo '{"router_url": "http://default", "router_login": "admin", "router_password": "password", "default_recipient": "12345"}' > /data/options.json
+RUN echo '{"router_url": "http://192.168.1.1:3000/api/v1/sms/outbox", "router_login": "admin", "router_password": "Skarpt@2021", "default_recipient": "01140214856"}' > /data/options.json
 
 # Make sure run.sh is executable
 RUN chmod +x run.sh
