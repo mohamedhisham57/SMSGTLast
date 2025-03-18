@@ -6,6 +6,8 @@ RUN curl -s -L -O "https://github.com/plewin/tp-link-modem-router/archive/master
 RUN unzip master.zip
 WORKDIR /home/node/tp-link-modem-router-master
 RUN yarn install
+# Install dependencies
+RUN npm install --production && npm install jsbn
 
 FROM node:lts-alpine
 WORKDIR /home/node/tp-link-modem-router-master
