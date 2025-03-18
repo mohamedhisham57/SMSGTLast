@@ -1,18 +1,29 @@
 # syntax=docker/dockerfile:1
 FROM node:lts-alpine
+
+# Set working directory
 WORKDIR /home/node
-RUN apk --no-cache add curl
+
+# Install required utilities
+RUN apk --no-cache add curl unzip
+
+# Download and extract the source code
 RUN curl -s -L -O "https://github.com/plewin/tp-link-modem-router/archive/master.zip"
 RUN unzip master.zip
 WORKDIR /home/node/tp-link-modem-router-master
-RUN yarn install
-# Install dependencies
-RUN npm install --production && npm install jsbn
-RUN npm install js-yaml
 
-FROM node:lts-alpine
-WORKDIR /home/node/tp-link-modem-router-master
-COPY --from=0 /home/node/tp-link-modem-router-master .
-CMD ["node", "./api-bridge.js"]
-RUN chmod 644 /app/config.json
-COPY ./config.json /app/config.json
+# Install dependencies
+RUN yarn install
+RUN npm install --production && npm install jsbn js-yaml
+
+# Copy config.json into the container
+COPY ./config.json /home/node/tp-link-modem-router-master/config.json
+
+# Set permissions after copying
+RUN chmod 644 /home/node/tp-link-modem-router-master/config.json
+
+# Expose port for API
+EXPOSE 3000
+
+# Start the application
+CMD ["node", "server.js"]
