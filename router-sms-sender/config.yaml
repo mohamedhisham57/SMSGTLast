@@ -1,7 +1,7 @@
-name: "Router SMS Sender"
-description: "Send SMS messages through your router from Home Assistant"
+name: "SMS Router Bridge"
+description: "Send SMS messages through your router"
 version: "1.0.0"
-slug: "router_sms_sender"
+slug: "sms_router_bridge"
 init: false
 arch:
   - aarch64
@@ -11,13 +11,27 @@ arch:
   - i386
 startup: application
 boot: auto
+ingress: true
+ingress_port: 3000
+panel_icon: mdi:message-text
 options:
-  router_url: "http://192.168.1.1"
+  router_url: "http://192.168.1.1:3000"
   router_login: "admin"
   router_password: ""
   default_recipient: ""
+  api_listen_host: "0.0.0.0"
+  api_listen_port: 3000
+  api_username: "admin"
+  api_password: ""
 schema:
-  router_url: "str"
-  router_login: "str"
-  router_password: "str"
-  default_recipient: "str?"
+  router_url: str
+  router_login: str
+  router_password: password
+  default_recipient: str
+  api_listen_host: str
+  api_listen_port: port
+  api_username: str
+  api_password: password
+host_network: true
+map:
+  - share:rw
