@@ -7,6 +7,7 @@ import nocache from 'nocache'
 import swaggerJsdoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
 import expressBasicAuth from 'express-basic-auth'
+import yaml from 'js-yaml';
 
 import RouterClient from './src/routerClient.mjs'
 import logger from './src/logger.mjs'
