@@ -1,8 +1,0 @@
-{
-    "url": "http://192.168.0.1",
-    "login": "admin",
-    "password": "Skarpt@2021",
-    "api_listen_host": "127.0.0.1",
-    "api_listen_port": 3000,
-    "api_users": { "apiuser": "pleasechangeme" }
-}

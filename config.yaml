@@ -1,0 +1,23 @@
+name: "Router SMS Sender"
+description: "Send SMS messages through your router from Home Assistant"
+version: "1.0.0"
+slug: "router_sms_sender"
+init: false
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+startup: application
+boot: auto
+options:
+  router_url: "http://192.168.1.1"
+  router_login: "admin"
+  router_password: ""
+  default_recipient: ""
+schema:
+  router_url: "str"
+  router_login: "str"
+  router_password: "str"
+  default_recipient: "str?"
