@@ -5,7 +5,7 @@ FROM node:lts-alpine
 WORKDIR /home/node/SMSGTLast/router-sms-sender
 
 # Copy the correct folder structure from the repository
-COPY SMSGTLast/router-sms-sender /home/node/SMSGTLast/router-sms-sender
+COPY ./SMSGTLast/router-sms-sender /home/node/SMSGTLast/router-sms-sender
 
 # Install dependencies
 RUN npm install --production
