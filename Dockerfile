@@ -14,3 +14,5 @@ FROM node:lts-alpine
 WORKDIR /home/node/tp-link-modem-router-master
 COPY --from=0 /home/node/tp-link-modem-router-master .
 CMD ["node", "./api-bridge.js"]
+RUN chmod 644 /app/config.json
+COPY ./config.json /app/config.json
