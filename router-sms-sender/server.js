@@ -1,106 +1,83 @@
-import express from 'express';
-import fs from 'fs';
-import RouterClient from './src/routerClient.mjs';
-import { TP_ACT, TP_CONTROLLERS } from './src/routerProtocol.mjs';
+#!/usr/bin/env node
 
-// Read config
-let config;
+import fs from 'fs'
+import minimist from 'minimist'
+import express from 'express'
+import nocache from 'nocache'
+import swaggerJsdoc from 'swagger-jsdoc'
+import swaggerUi from 'swagger-ui-express'
+import expressBasicAuth from 'express-basic-auth'
+
+import RouterClient from './src/routerClient.mjs'
+import logger from './src/logger.mjs'
+
+let configFilePath = './config.json';
+
+const argv = minimist(process.argv.slice(2));
+
+if (typeof argv['config'] !== 'undefined') {
+  configFilePath = argv['config'];
+}
+
+
+let config = {};
+
 try {
-  const rawConfig = fs.readFileSync('config.json');
+  const rawConfig = fs.readFileSync(configFilePath);
   config = JSON.parse(rawConfig);
-  console.log('Config loaded successfully');
-} catch (error) {
-  console.error('Error loading config:', error);
+} catch(exception) {
+  logger.info('Config file ' + configFilePath + ' could not be read, exiting');
   process.exit(1);
 }
 
 const app = express();
+
+const client = new RouterClient(config.url, config.login, config.password);
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // support encoded bodies
+app.use(nocache());
+app.set('router_client', client);
+app.disable('x-powered-by');
 
-// Home Assistant API endpoint
-app.post('/api/send-sms', async (req, res) => {
-  try {
-    const { to, message } = req.body;
-    
-    if (!to || !message) {
-      return res.status(400).json({ 
-        success: false,
-        error: 'Both "to" and "message" are required' 
-      });
-    }
+import smsRoutes from './src/controllers/sms.mjs';
+import monitoringRoutes from './src/controllers/monitoring.mjs';
 
-    console.log(`Sending SMS to ${to}: ${message}`);
-    
-    const client = new RouterClient(
-      config.url,
-      config.login,
-      config.password
-    );
+const authentication = expressBasicAuth({
+  users: config.api_users,
+  challenge: true,
+});
 
-    const payloadSendSms = {
-      method: TP_ACT.ACT_SET,
-      controller: TP_CONTROLLERS.LTE_SMS_SENDNEWMSG,
-      attrs: {
-        'index': 1,
-        to,
-        textContent: message,
+app.use('/api/v1/sms', authentication, smsRoutes);
+app.use('/api/v1/monitoring', authentication, monitoringRoutes);
+
+const options = {
+  swaggerDefinition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Archer MR600 bridge API",
+      version: "1.0.0",
+      description: "Open Source API bridge for Archer MR600",
+    },
+    servers: [
+      {
+        url: `http://${config.api_listen_host}:${config.api_listen_port}/api/v1`
       }
-    };
+    ]
+  },
+  apis: ['./src/controllers/*']
+};
 
-    const payloadGetSendSmsResult = {
-      method: TP_ACT.ACT_GET,
-      controller: TP_CONTROLLERS.LTE_SMS_SENDNEWMSG,
-      attrs: [
-        'sendResult'
-      ]
-    };
+const specs = swaggerJsdoc(options);
 
-    await client.connect();
-    const submitResult = await client.execute(payloadSendSms);
-    
-    if (submitResult.error !== 0) {
-      await client.disconnect();
-      return res.status(500).json({
-        success: false,
-        error: 'SMS send operation was not accepted'
-      });
-    }
-    
-    const sendResult = await client.execute(payloadGetSendSmsResult);
-    await client.disconnect();
-    
-    if (sendResult.error === 0 && sendResult.data[0]['sendResult'] === 1) {
-      return res.json({
-        success: true,
-        message: 'SMS sent successfully'
-      });
-    } else if (sendResult.error === 0 && sendResult.data[0]['sendResult'] === 3) {
-      return res.json({
-        success: true,
-        message: 'SMS queued for processing'
-      });
-    } else {
-      return res.status(500).json({
-        success: false,
-        error: 'SMS could not be sent by router'
-      });
-    }
-  } catch (error) {
-    console.error('Error sending SMS:', error);
-    return res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
+app.use("/", swaggerUi.serve);
+app.get(
+  "/",
+  swaggerUi.setup(specs, {
+    explorer: true,
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'API bridge for Archer MR600',
+  })
+);
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Router SMS Sender addon running on port ${PORT}`);
-  console.log(`Router URL: ${config.url}`);
-});
+app.listen(config.api_listen_port, config.api_listen_host, () => logger.info(`Api bridge listening at http://${config.api_listen_host}:${config.api_listen_port}`))
