@@ -1,29 +1,17 @@
-# syntax=docker/dockerfile:1
+# Use Node.js Alpine as base image
 FROM node:lts-alpine
 
-# Set working directory
-WORKDIR /home/node
+# Set working directory inside the container
+WORKDIR /home/node/SMSGTLast/router-sms-sender
+
+# Copy the correct folder structure from the repository
+COPY SMSGTLast/router-sms-sender /home/node/SMSGTLast/router-sms-sender
 
 # Install dependencies
-RUN apk --no-cache add curl
-RUN curl -s -L -O "https://github.com/plewin/tp-link-modem-router/archive/master.zip"
-RUN unzip master.zip
+RUN npm install --production
 
-WORKDIR /home/node/tp-link-modem-router-master
-RUN yarn install
-
-# Second stage for building final image
-FROM node:lts-alpine
-WORKDIR /home/node/tp-link-modem-router-master
-
-# Copy built files from the previous stage
-COPY --from=0 /home/node/tp-link-modem-router-master .
-
-# Copy the configuration file
-COPY config.json /home/node/tp-link-modem-router-master/config.json
-
-# Expose the port for external access
+# Expose API port (if necessary)
 EXPOSE 3000
 
-# Start the API server
+# Run the server
 CMD ["node", "server.js"]
