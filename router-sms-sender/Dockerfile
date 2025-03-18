@@ -1,27 +1,13 @@
-FROM node:18-alpine
+# syntax=docker/dockerfile:1
+FROM node:lts-alpine
+WORKDIR /home/node
+RUN apk --no-cache add curl
+RUN curl -s -L -O "https://github.com/plewin/tp-link-modem-router/archive/master.zip"
+RUN unzip master.zip
+WORKDIR /home/node/tp-link-modem-router-master
+RUN yarn install
 
-# Install jq for JSON processing
-RUN apk add --no-cache jq bash
-
-# Set working directory
-WORKDIR /app
-
-# Copy package files and install dependencies
-COPY package.json ./
-RUN npm install --production
-
-# Copy the rest of the application
-COPY . .
-
-# Create required directories
-RUN mkdir -p /data
-
-# If you have a default config, copy it to the expected location
-# (Replace this with your actual default config if available)
-RUN echo '{"router_url": "http://192.168.1.1:3000/api/v1/sms/outbox", "router_login": "admin", "router_password": "Skarpt@2021", "default_recipient": "01140214856"}' > /data/options.json
-
-# Make sure run.sh is executable
-RUN chmod +x run.sh
-
-# Run the script
-CMD ["/bin/bash", "/app/run.sh"]
+FROM node:lts-alpine
+WORKDIR /home/node/tp-link-modem-router-master
+COPY --from=0 /home/node/tp-link-modem-router-master .
+CMD ["node", "./api-bridge.js"]
