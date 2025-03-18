@@ -8,6 +8,7 @@ WORKDIR /home/node/tp-link-modem-router-master
 RUN yarn install
 # Install dependencies
 RUN npm install --production && npm install jsbn
+RUN npm install js-yaml
 
 FROM node:lts-alpine
 WORKDIR /home/node/tp-link-modem-router-master
