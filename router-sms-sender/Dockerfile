@@ -1,27 +1,29 @@
 FROM node:18-alpine
 
-# Install jq for JSON processing
-RUN apk add --no-cache jq bash
+# Add labels for Home Assistant
+LABEL io.hass.name="SMS Router Bridge" \
+      io.hass.description="Send SMS messages through your router" \
+      io.hass.version="1.0.0" \
+      io.hass.type="addon" \
+      io.hass.arch="aarch64,amd64,armhf,armv7,i386"
+
+# Install required packages
+RUN apk add --no-cache bash jq curl
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy package files
 COPY package.json ./
+
+# Install dependencies
 RUN npm install --production
 
-# Copy the rest of the application
+# Copy application code
 COPY . .
 
-# Create required directories
-RUN mkdir -p /data
-
-# If you have a default config, copy it to the expected location
-# (Replace this with your actual default config if available)
-RUN echo '{"router_url": "http://default", "router_login": "admin", "router_password": "password", "default_recipient": "12345"}' > /data/options.json
-
-# Make sure run.sh is executable
+# Make scripts executable
 RUN chmod +x run.sh
 
 # Run the script
-CMD ["/bin/bash", "/app/run.sh"]
+CMD [ "/bin/bash", "/app/run.sh" ]
