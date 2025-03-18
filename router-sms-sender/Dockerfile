@@ -1,34 +1,27 @@
 FROM node:18-alpine
 
-# Install bash for better debugging
-RUN apk add --no-cache bash
+# Install jq for JSON processing
+RUN apk add --no-cache jq bash
 
 # Set working directory
 WORKDIR /app
 
-# Copy everything
+# Copy package files and install dependencies
+COPY package.json ./
+RUN npm install --production
+
+# Copy the rest of the application
 COPY . .
 
-# Print directory structure for debugging
-RUN echo "==== Directory structure after COPY ===="
-RUN find . -type f | sort
+# Create required directories
+RUN mkdir -p /data
 
-# Check if run.sh exists and make it executable wherever it is
-RUN find . -name "run.sh" -exec chmod +x {} \;
-RUN find . -name "run.sh" -exec echo "Found run.sh at: {}" \;
+# If you have a default config, copy it to the expected location
+# (Replace this with your actual default config if available)
+RUN echo '{"router_url": "http://default", "router_login": "admin", "router_password": "password", "default_recipient": "12345"}' > /data/options.json
 
-# Create a simple debug script in case run.sh is not found
-RUN echo '#!/bin/sh' > debug-entrypoint.sh
-RUN echo 'echo "Current directory: $(pwd)"' >> debug-entrypoint.sh
-RUN echo 'echo "Directory contents:"' >> debug-entrypoint.sh
-RUN echo 'ls -la' >> debug-entrypoint.sh
-RUN echo 'echo "Searching for run.sh:"' >> debug-entrypoint.sh
-RUN echo 'find / -name "run.sh" 2>/dev/null || echo "No run.sh found"' >> debug-entrypoint.sh
-RUN echo 'echo "Environment variables:"' >> debug-entrypoint.sh
-RUN echo 'env' >> debug-entrypoint.sh
-RUN echo 'echo "Attempting to run node directly..."' >> debug-entrypoint.sh
-RUN echo 'if [ -f "index.js" ]; then node index.js; elif [ -d "SMSGTLast/router-sms-sender" ]; then cd SMSGTLast/router-sms-sender && ls -la && ([ -f "index.js" ] && node index.js || echo "No index.js found"); else echo "Cannot find entry point"; fi' >> debug-entrypoint.sh
-RUN chmod +x debug-entrypoint.sh
+# Make sure run.sh is executable
+RUN chmod +x run.sh
 
-# Try to find the actual entry point
-CMD ["./debug-entrypoint.sh"]
+# Run the script
+CMD ["/bin/bash", "/app/run.sh"]
