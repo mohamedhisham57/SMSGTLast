@@ -1,17 +1,19 @@
-# Use Node.js Alpine as base image
-FROM node:lts-alpine
+FROM node:18-alpine
 
-# Set working directory inside the container
-WORKDIR /home/node/SMSGTLast/router-sms-sender
+# Set working directory
+WORKDIR /app
 
-# Copy the correct folder structure from the repository
-COPY ./SMSGTLast/router-sms-sender /home/node/SMSGTLast/router-sms-sender
+# Copy package files
+COPY package.json package-lock.json* ./
 
 # Install dependencies
-RUN npm install --production
+RUN npm ci --only=production
 
-# Expose API port (if necessary)
-EXPOSE 3000
+# Copy application code
+COPY . .
 
-# Run the server
-CMD ["node", "server.js"]
+# Set execute permissions on entry script
+RUN chmod +x run.sh
+
+# Command to run when container starts
+CMD [ "/app/run.sh" ]
