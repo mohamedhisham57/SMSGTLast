@@ -11,7 +11,7 @@ import expressBasicAuth from 'express-basic-auth'
 import RouterClient from './src/routerClient.mjs'
 import logger from './src/logger.mjs'
 
-let configFilePath = './config.json';
+let configFilePath = './config.yaml';
 
 const argv = minimist(process.argv.slice(2));
 
