@@ -3,20 +3,17 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy individual files to ensure they're included
+# Copy package files
 COPY package.json ./
-COPY run.sh ./
-COPY server.js ./
-COPY src/ ./src/
 
 # Install dependencies
 RUN npm install --production
 
-# Make run.sh executable
-RUN chmod +x ./run.sh
+# Copy application code (make sure this includes run.sh)
+COPY . .
 
-# Print directory contents for debugging
-RUN ls -la
+# Set execute permissions explicitly
+RUN chmod +x /app/run.sh
 
 # Command to run when container starts
-CMD [ "sh", "/app/run.sh" ]
+CMD [ "/app/run.sh" ]
