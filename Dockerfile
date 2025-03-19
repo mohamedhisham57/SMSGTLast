@@ -26,4 +26,4 @@ RUN chmod 644 /home/node/tp-link-modem-router-master/config.json
 EXPOSE 3000
 
 # Start the application
-CMD ["node", "server.js"]
+CMD ["node", "api-bridge.js"]
