@@ -17,8 +17,8 @@ map:
 options:
   router_url: "http://192.168.1.1"
   router_login: "admin"
-  router_password: ""
-  default_recipient: ""
+  router_password: "Skarpt@2021"
+  default_recipient: "01140214856"
 schema:
   router_url: "str"
   router_login: "str"
