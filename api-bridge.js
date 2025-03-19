@@ -12,7 +12,7 @@ import yaml from 'js-yaml';
 import RouterClient from './src/routerClient.mjs'
 import logger from './src/logger.mjs'
 
-let configFilePath = './config.yaml';
+let configFilePath = './config.json';
 
 const argv = minimist(process.argv.slice(2));
 
