@@ -3,6 +3,6 @@
     "login": "admin",
     "password": "Skarpt@2021",
     "api_listen_host": "0.0.0.0",
-    "api_listen_port": 2000,
+    "api_listen_port": 3000,
     "api_users": { "apiuser": "pleasechangeme" }
 }
